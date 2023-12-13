@@ -290,6 +290,8 @@ public class Home extends javax.swing.JPanel {
         DecimalFormat df = new DecimalFormat("#.00");
         lbTiempo.setText(df.format(data.getTiempo_de_preparacion()) + " minutos");
 
+
+
         // implementar eventos
         btnDelete.addActionListener(e -> {
             JOptionPane.showMessageDialog(null, "Eliminar");
@@ -498,6 +500,15 @@ public class Home extends javax.swing.JPanel {
                 pst.setInt(1, id);
                 pst.executeUpdate();
             }
+
+            // elimina los comentarios de la receta
+            String sqlC = "DELETE FROM Comentarios WHERE id_receta = ?";
+            try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
+                pst.setInt(1, id);
+                pst.executeUpdate();
+            }
+
+
 
             // Finalmente, elimina la receta
             sql = "DELETE FROM Receta WHERE id_receta = ?";

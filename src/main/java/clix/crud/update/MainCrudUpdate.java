@@ -204,7 +204,7 @@ public class MainCrudUpdate extends JPanel {
 
 
         guardar.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/iconsImg/guardar-datos.png")))); // NOI18N
-        guardar.setText("guardar");
+        guardar.setText("Actualizar");
 
         //centrar el texto
         guardar.setHorizontalAlignment(SwingConstants.CENTER);

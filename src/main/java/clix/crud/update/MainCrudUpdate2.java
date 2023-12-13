@@ -153,7 +153,7 @@ public class MainCrudUpdate2 extends JPanel {
                 date.setTextRefernce(txtDate);
 
                 jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-                jLabel1.setText("Termina de Crear tu Receta");
+                jLabel1.setText("Termina de Actualizar tu receta");
 
                 lblIngredieentes.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 lblIngredieentes.setText("Ingredientes");
@@ -175,7 +175,7 @@ public class MainCrudUpdate2 extends JPanel {
                 jScrollPane1.setViewportView(textAreaComentario);
 
                 guardarReceta.setIcon(new ImageIcon(getClass().getResource("/iconsImg/minicohete.png"))); // NOI18N
-                guardarReceta.setText("Gurdar receta");
+                guardarReceta.setText("Actualizar");
                 guardarReceta.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                                 guardarRecetaActionPerformed(evt);
