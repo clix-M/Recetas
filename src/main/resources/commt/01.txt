@@ -1,0 +1,2 @@
+jna se importo con maven
+mysqlConnector se importo con maven
