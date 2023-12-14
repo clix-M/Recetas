@@ -288,11 +288,6 @@ public class Home extends javax.swing.JPanel {
         lbTiempo.setText(df.format(data.getTiempo_de_preparacion()) + " minutos");
 
 
-
-        // implementar eventos
-        btnDelete.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null, "Eliminar");
-        });
         btnSeeMore.addActionListener(e -> {
             JOptionPane.showMessageDialog(null, "Ver mas");
         });
@@ -481,48 +476,49 @@ public class Home extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-
         int id = itemSelected.getId_receta();
-        try {
-            // Primero, elimina las filas en Ingrediente_receta que hacen referencia a la receta
-            String sql = "DELETE FROM Ingrediente_receta WHERE id_receta = ?";
-            try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
-                pst.setInt(1, id);
-                pst.executeUpdate();
+
+        // mostrar mensaje de pregunta y pone el foco en el boton si o no
+        int resp = JOptionPane.showConfirmDialog(null, "¿Está seguro que desea eliminar la receta?", "Alerta!", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+        if (resp == JOptionPane.YES_OPTION) {
+            try {
+                // Primero, elimina las filas en Ingrediente_receta que hacen referencia a la receta
+                String sql = "DELETE FROM Ingrediente_receta WHERE id_receta = ?";
+                try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
+                    pst.setInt(1, id);
+                    pst.executeUpdate();
+                }
+
+                // Luego, elimina las filas en Favorito que hacen referencia a la receta
+                sql = "DELETE FROM Favorito WHERE id_receta = ?";
+                try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
+                    pst.setInt(1, id);
+                    pst.executeUpdate();
+                }
+
+                // elimina los comentarios de la receta
+                String sqlC = "DELETE FROM Comentarios WHERE id_receta = ?";
+                try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
+                    pst.setInt(1, id);
+                    pst.executeUpdate();
+                }
+
+                // Finalmente, elimina la receta
+                sql = "DELETE FROM Receta WHERE id_receta = ?";
+                try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
+                    pst.setInt(1, id);
+                    pst.executeUpdate();
+                }
+
+                JOptionPane.showMessageDialog(null, "La receta ha sido eliminada");
+
+                FormsManager.getInstance().showForm(new Home());
+            } catch (Exception ex) {
+                System.out.println(ex);
             }
-
-            // Luego, elimina las filas en Favorito que hacen referencia a la receta
-            sql = "DELETE FROM Favorito WHERE id_receta = ?";
-            try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
-                pst.setInt(1, id);
-                pst.executeUpdate();
-            }
-
-            // elimina los comentarios de la receta
-            String sqlC = "DELETE FROM Comentarios WHERE id_receta = ?";
-            try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
-                pst.setInt(1, id);
-                pst.executeUpdate();
-            }
-
-
-
-            // Finalmente, elimina la receta
-            sql = "DELETE FROM Receta WHERE id_receta = ?";
-            try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
-                pst.setInt(1, id);
-                pst.executeUpdate();
-            }
-
-            JOptionPane.showMessageDialog(null, "Receta eliminada");
-            FormsManager.getInstance().showForm(new Home());
-        } catch (Exception ex) {
-            System.out.println(ex);
+        } else {
+            JOptionPane.showMessageDialog(null, "La receta no ha sido eliminada");
         }
-
-
-
-
 
 
 
