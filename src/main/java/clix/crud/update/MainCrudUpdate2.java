@@ -5,6 +5,8 @@
 package clix.crud.update;
 
 import clix.crud.receta.MainCrud;
+import clix.crud.receta.combobox.ComboBoxMultiSelection;
+import clix.home.Home;
 import clix.manager.FormsManager;
 import clix.manager.SessionManager;
 import clix.model.ModelReceta;
@@ -24,6 +26,8 @@ import java.util.Objects;
  * @author clint
  */
 public class MainCrudUpdate2 extends JPanel {
+        List<String> ingredientesG = new ArrayList<>();
+        List<String> cantidadesG = new ArrayList<>();
         private ModelReceta receta;
 
 
@@ -34,11 +38,33 @@ public class MainCrudUpdate2 extends JPanel {
         public MainCrudUpdate2(ModelReceta receta) {
                 this.receta = receta;
                 initComponents();
+
+
                 testData(comboBoxMultiSelection1);
                 testData2(comboBoxMultiSelection2);
 
-
+                // pasar los datos a los campos
                 getDATA();
+
+                // poner los datos en los campos
+                comboBoxMultiSelection1.setSelectedItems(ingredientesG);
+                comboBoxMultiSelection2.setSelectedItems(cantidadesG);
+
+                // cambiar el color de los botones
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -101,9 +127,10 @@ public class MainCrudUpdate2 extends JPanel {
                                 while (rs.next()) {
                                         String nombre = rs.getString(1);
                                         String medida = rs.getString(2);
-                                        // mostrar en el combobox
-                                        comboBoxMultiSelection1.addItem(nombre);
-                                        comboBoxMultiSelection2.addItem(medida);
+                                        ingredientesG.add(nombre);
+                                        cantidadesG.add(medida);
+
+
                                 }
 
                         }
@@ -135,7 +162,7 @@ public class MainCrudUpdate2 extends JPanel {
                 jScrollPane1 = new JScrollPane();
                 textAreaComentario = new JTextArea();
                 textAutor = new JTextField();
-                comboBoxMultiSelection1 = new clix.crud.receta.combobox.ComboBoxMultiSelection();
+                comboBoxMultiSelection1 = new clix.crud.receta.combobox.ComboBoxMultiSelection<>();
                 guardarReceta = new clix.components.btn.Button();
                 btnRegresar = new clix.components.btn.Button();
                 txtDate = new JTextField();
@@ -144,7 +171,7 @@ public class MainCrudUpdate2 extends JPanel {
                 lblComentario1 = new JLabel();
                 jComboBox1 = new JComboBox<>();
                 lblIngredieentes1 = new JLabel();
-                comboBoxMultiSelection2 = new clix.crud.receta.combobox.ComboBoxMultiSelection();
+                comboBoxMultiSelection2 = new clix.crud.receta.combobox.ComboBoxMultiSelection<>();
                 jLabel2 = new JLabel();
                 jLabel5 = new JLabel();
                 jLabel7 = new JLabel();
@@ -176,11 +203,7 @@ public class MainCrudUpdate2 extends JPanel {
 
                 guardarReceta.setIcon(new ImageIcon(getClass().getResource("/iconsImg/minicohete.png"))); // NOI18N
                 guardarReceta.setText("Actualizar");
-                guardarReceta.addActionListener(new java.awt.event.ActionListener() {
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                guardarRecetaActionPerformed(evt);
-                        }
-                });
+                guardarReceta.addActionListener(this::guardarRecetaActionPerformed);
 
                 btnRegresar.setIcon(
                                 new ImageIcon(getClass().getResource("/iconsImg/flecha-izquierda.png"))); // NOI18N
@@ -564,6 +587,9 @@ public class MainCrudUpdate2 extends JPanel {
 
                 List<String> ingredientes = new ArrayList<>(comboBoxMultiSelection1.getSelectedItems());
                 List<String> cantidades = new ArrayList<>(comboBoxMultiSelection2.getSelectedItems());
+
+
+
                 String autor = textAutor.getText();
                 String fecha = txtDate.getText();
                 String comentario = textAreaComentario.getText();
@@ -572,12 +598,12 @@ public class MainCrudUpdate2 extends JPanel {
                 // tru si es si y false si es no
                 boolean favorito = favoritoText.equals("si");
 
-                if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.isEmpty() || fecha.isEmpty()
-                                || comentario.isEmpty()
-                                || favoritoText.isEmpty()) {
+                if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.isEmpty() || fecha.isEmpty()|| comentario.isEmpty()|| favoritoText.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos");
                 } else {
                         try {
+                                // como actualizar algo que se inserta de esta manera
+                                /*
                                 for (int i = 0; i < ingredientes.size(); i++) {
                                         String ingrediente = ingredientes.get(i);
                                         String cantidad = cantidades.get(i);
@@ -602,57 +628,48 @@ public class MainCrudUpdate2 extends JPanel {
                                         }
                                 }
 
-                                /*
-                                 * CREATE TABLE IF NOT EXISTS Comentarios (
-                                 * id_comentarios INT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-                                 * id_receta INT,
-                                 * nombre_autor VARCHAR(255),
-                                 * fecha DATE,
-                                 * comentario TEXT
-                                 * );
                                  */
 
-                                // tenemos el id de la receta en receta.getId_receta()
 
-                                String sqlB = "INSERT INTO Comentarios (id_receta, nombre_autor, fecha, comentario) VALUES (?, ?, ?, ?)";
+                                String sqlB = "UPDATE Comentarios SET nombre_autor = ?, fecha = ?, comentario = ? WHERE id_receta = ?";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlB)) {
-                                        pst.setInt(1, receta.getId_receta());
-                                        pst.setString(2, autor);
+                                        pst.setString(1, autor);
 
-                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                                         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                                         LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
                                         String formattedDate = outputFormatter.format(parsedDate);
-                                        pst.setDate(3, java.sql.Date.valueOf(formattedDate));
+                                        pst.setDate(2, java.sql.Date.valueOf(formattedDate));  // Cambia el índice a 2
 
-                                        pst.setString(4, comentario);
+                                        pst.setString(3, comentario);
+                                        pst.setInt(4, receta.getId_receta());
                                         pst.executeUpdate();
                                 } catch (Exception ex) {
-                                        System.out.println(ex);
+                                        System.out.println("Comentarios: " +ex);
                                 }
 
-                                String sqlC = "INSERT INTO Favorito (favorito, id_usuario, id_receta) VALUES (?, ?, ?)";
+                                String sqlC = "UPDATE Favorito SET favorito = ? WHERE id_receta = ?";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
                                         pst.setBoolean(1, favorito);
-                                        pst.setInt(2, SessionManager.getInstance().getUserId());
-                                        pst.setInt(3, receta.getId_receta());
+                                        pst.setInt(2, receta.getId_receta());
                                         pst.executeUpdate();
                                 } catch (Exception ex) {
-                                        System.out.println(ex);
+                                        System.out.println("Favorito: " + ex);
                                 }
 
-                                JOptionPane.showMessageDialog(null, "Receta guardada con éxito");
-                                // abrir la ventana de recetas
-                                FormsManager.getInstance().showForm(new MainCrud());
+                                JOptionPane.showMessageDialog(null, "Receta actualizada con éxito");
+
+                                FormsManager.getInstance().showForm(new Home());
                         } catch (Exception ex) {
-                                System.out.println(ex);
+                                System.out.println("Error: " + ex);
                         }
                 }
+
 
         }// GEN-LAST:event_guardarRecetaActionPerformed
 
         private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnRegresarActionPerformed
-                FormsManager.getInstance().showForm(new MainCrud());
+                FormsManager.getInstance().showForm(new MainCrudUpdate2(receta));
         }// GEN-LAST:event_btnRegresarActionPerformed
 
         private void btnAhoraActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnAhoraActionPerformed
@@ -670,9 +687,11 @@ public class MainCrudUpdate2 extends JPanel {
         // Variables declaration - do not modify//GEN-BEGIN:variables
         private JButton btnAhora;
         private JButton btnCalendar;
-        private clix.components.btn.Button btnRegresar;
+
         private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection1;
         private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection2;
+
+        private clix.components.btn.Button btnRegresar;
         private clix.components.datechooser.DateChooser date;
         private clix.components.btn.Button guardarReceta;
         private JComboBox<String> jComboBox1;
@@ -692,13 +711,5 @@ public class MainCrudUpdate2 extends JPanel {
         private JTextField textAutor;
         private JTextField txtDate;
         // End of variables declaration//GEN-END:variables
-        /*
-         * public static void main(String[] args) {
-         * JFrame frame = new JFrame();
-         * frame.add(new MainCrud2(new ModelReceta()));
-         * frame.pack();
-         * frame.setVisible(true);
-         * }
-         * 
-         */
+
 }
