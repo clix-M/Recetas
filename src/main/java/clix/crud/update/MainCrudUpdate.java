@@ -4,11 +4,10 @@
  */
 package clix.crud.update;
 
-import clix.crud.receta.MainCrud2;
+import clix.components.btn.Button;
 import clix.home.Home;
 import clix.jnafilechooser.api.JnaFileChooser;
 import clix.manager.FormsManager;
-import clix.model.Comentarios;
 import clix.model.ModelReceta;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
@@ -16,16 +15,15 @@ import com.formdev.flatlaf.FlatClientProperties;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Objects;
 
 /**
@@ -33,10 +31,9 @@ import java.util.Objects;
  * @author clint
  */
 public class MainCrudUpdate extends JPanel {
+    // para guardar direccion de la imagen
      private String imagePath = "";
-    ModelReceta recetaPas;
-
-
+     ModelReceta recetaPas;
 
 
 
@@ -47,7 +44,7 @@ public class MainCrudUpdate extends JPanel {
         this.recetaPas = receta;
         initComponents();
 
-        System.out.println(receta.getImagen());
+       // System.out.println(receta.getImagen());
 
         textNombreReceta.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ingrese el nombre de la receta");
         textNombreReceta.putClientProperty(FlatClientProperties.STYLE, "" +
@@ -86,9 +83,9 @@ public class MainCrudUpdate extends JPanel {
         btnBuscarImagen = new JButton();
         jSeparator1 = new JSeparator();
         lblImagen = new JLabel();
-        seguir = new clix.components.btn.Button();
-        guardar = new clix.components.btn.Button();
-        regresar = new clix.components.btn.Button();
+        seguir = new Button();
+        guardar = new Button();
+        regresar = new Button();
         lblDescripcion1 = new JLabel();
         // mostar los datos que nos pasaron
 
@@ -107,8 +104,6 @@ public class MainCrudUpdate extends JPanel {
         textNombreReceta.setText(recetaPas.getNombre());
 
 
-        // marca la categoria que nos pasaron en el combobox de categoria
-        // comboboxCategoria.setSelectedIndex(recetaPas.getId_categoria());
         comboboxCategoria.setModel(new DefaultComboBoxModel<>(new String[] { "Seleccione una categoria", "Desayuno", "Almuerzo", "Cena", "Postre"}));
         comboboxCategoria.addActionListener(this::comboboxCategoriaActionPerformed);
         // estamoa pasando la categoria que nos pasaron pero ya marcado
@@ -123,24 +118,17 @@ public class MainCrudUpdate extends JPanel {
         comboboxCategoria.setSelectedItem(categoriaString);
 
 
-
-
         jScrollPane1.setViewportView(textDescripcionReceta);
         // pasar la descripcion que nos pasaron pero ya marcado
         textDescripcionReceta.setText(recetaPas.getDescripcion());
-
 
 
         lblDificultad.setText("Dificultad");
 
         lblDificultad.setFont(new Font("Segoe UI", 1, 13));
 
-
-
         jLabel5.setText("Tiempo de Preparacion");
         jLabel5.setFont(new Font("Segoe UI", 1, 13));
-
-
 
         comboboxTiempoPrep.setModel(new DefaultComboBoxModel<>(new String[] { "Seleccione un tiempo en minutos", "15", "30", "45", "60", "90", "120","150","180","240","300" }));
         // dejar que puedan realizar cambios
@@ -164,8 +152,6 @@ public class MainCrudUpdate extends JPanel {
         lnlPasosReceta.setText("Pasos a Seguir");
         lnlPasosReceta.setFont(new Font("Segoe UI", 1, 13));
         jScrollPane2.setViewportView(textPasosReceta);
-        // pasar los pasos que nos pasaron pero ya marcado --------------------------------------------------
-        // textPasosReceta.setText(recetaPas.getInstruccion_de_preparacion());
         // la condicion es que no pasara un texto largo pero ne medio de esos hay "_" o un "-" entonces se reemplaza por un salto de linea
         String pasosReceta = recetaPas.getInstruccion_de_preparacion();
         if (pasosReceta.contains("_")) {
@@ -223,8 +209,6 @@ public class MainCrudUpdate extends JPanel {
                     Image img = ((ImageIcon) recetaPas.getImagen()).getImage();
                     ImageIcon img2 = new ImageIcon(img.getScaledInstance(lblImagen.getWidth(), lblImagen.getHeight(), Image.SCALE_SMOOTH));
                     lblImagen.setIcon(img2);
-                } else {
-                    //
                 }
             }
         });
@@ -354,21 +338,18 @@ public class MainCrudUpdate extends JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void textNombreRecetaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textNombreRecetaActionPerformed
+    private void textNombreRecetaActionPerformed(ActionEvent evt) {//GEN-FIRST:event_textNombreRecetaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_textNombreRecetaActionPerformed
 
-    private void btnBuscarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarImagenActionPerformed
+    private void btnBuscarImagenActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnBuscarImagenActionPerformed
 
-         JnaFileChooser jnaCh = new JnaFileChooser();
+        JnaFileChooser jnaCh = new JnaFileChooser();
         jnaCh.addFilter("images","png","jpg","jpeg");
         jnaCh.setMultiSelectionEnabled(false);
 
 
-
-
         boolean save = jnaCh.showOpenDialog(SwingUtilities.getWindowAncestor(this)); // showOpenDialog retorna true si se selecciono un archivo
-
 
         if (save) {
             imagePath = jnaCh.getSelectedFile().getAbsolutePath();
@@ -379,10 +360,9 @@ public class MainCrudUpdate extends JPanel {
         }
 
 
-
     }//GEN-LAST:event_btnBuscarImagenActionPerformed
 
-    private void comboboxCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxCategoriaActionPerformed
+    private void comboboxCategoriaActionPerformed(ActionEvent evt) {//GEN-FIRST:event_comboboxCategoriaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_comboboxCategoriaActionPerformed
 
@@ -403,7 +383,7 @@ public class MainCrudUpdate extends JPanel {
         return imageBytes;
     }
 
-    private void guardarActionPerformed(java.awt.event.ActionEvent evt) {
+    private void guardarActionPerformed(ActionEvent evt) {
 
         String nombreReceta = textNombreReceta.getText();
 
@@ -428,14 +408,39 @@ public class MainCrudUpdate extends JPanel {
 
 
         String pasosReceta = textPasosReceta.getText();
-        byte[] imageBytes = convertImageToBytes(imagePath);
 
+        byte[] imageBytes = new byte[0];
+
+        if (recetaPas.getImagen() != null) {
+            // Si no se seleccionó una nueva imagen pero el objeto recetaPas tiene una imagen, usa esa imagen
+            ImageIcon icon = (ImageIcon) recetaPas.getImagen();
+            BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics g = bi.createGraphics();
+            // paint the Icon to the BufferedImage.
+            icon.paintIcon(null, g, 0,0);
+            g.dispose();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                ImageIO.write(bi, "jpg", baos);
+                imageBytes = baos.toByteArray();
+            } catch (IOException e) {
+                System.out.println(e);
+            }
+        } else {
+            // Si no se seleccionó una nueva imagen y el objeto recetaPas no tiene una imagen, establece imageBytes en null
+            imageBytes = null;
+        }
+
+        if (!imagePath.isEmpty()) {
+            // Si se seleccionó una nueva imagen, convierte la imagen a bytes
+            imageBytes = convertImageToBytes(imagePath);
+        }
 
         String tiempoPrepString = Objects.requireNonNull(comboboxTiempoPrep.getSelectedItem()).toString();
         double tiempoPrep = Double.parseDouble(tiempoPrepString);
 
 
-        if (nombreReceta.isEmpty() || descripcion.isEmpty() || dificultad == 0 || categoria == 0 || pasosReceta.isEmpty() || tiempoPrep == 0 || imageBytes == null) {
+        if (nombreReceta.isEmpty() || descripcion.isEmpty() || dificultad == 0 || categoria == 0 || pasosReceta.isEmpty() || tiempoPrep == 0 ) {
             JOptionPane.showMessageDialog(null, "Debe llenar todos los campos");
         } else {
             try {
@@ -454,26 +459,20 @@ public class MainCrudUpdate extends JPanel {
                 JOptionPane.showMessageDialog(null, "Receta actualizada correctamente");
 
 
-
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
 
 
-
-
-
-
-
     }
 
-    private void regresarActionPerformed(java.awt.event.ActionEvent evt) {
+    private void regresarActionPerformed(ActionEvent evt) {
 
         FormsManager.getInstance().showForm(new Home());
     }
 
-    private void seguirActionPerformed(java.awt.event.ActionEvent evt) {
+    private void seguirActionPerformed(ActionEvent evt) {
 
         FormsManager.getInstance().showForm(new MainCrudUpdate2(recetaPas));
     }
@@ -484,7 +483,7 @@ public class MainCrudUpdate extends JPanel {
     private JComboBox<String> comboboxCategoria;
     private JComboBox<String> comboboxDificultad;
     private JComboBox<String> comboboxTiempoPrep;
-    private clix.components.btn.Button guardar;
+    private Button guardar;
     private JLabel jLabel5;
     private JScrollPane jScrollPane1;
     private JScrollPane jScrollPane2;
@@ -496,8 +495,8 @@ public class MainCrudUpdate extends JPanel {
     private JLabel lblImagen;
     private JLabel lblNombreReceta;
     private JLabel lnlPasosReceta;
-    private clix.components.btn.Button regresar;
-    private clix.components.btn.Button seguir;
+    private Button regresar;
+    private Button seguir;
     private JTextPane textDescripcionReceta;
     private JTextField textNombreReceta;
     private JTextPane textPasosReceta;

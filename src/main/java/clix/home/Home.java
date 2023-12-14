@@ -2,7 +2,7 @@
 package clix.home;
 
 import clix.components.Item;
-import clix.crud.receta.MainCrud;
+import clix.crud.create.MainCrud;
 import clix.crud.update.MainCrudUpdate;
 import clix.event.EventItem;
 import clix.manager.FormsManager;
@@ -19,14 +19,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.List;
 
 /**

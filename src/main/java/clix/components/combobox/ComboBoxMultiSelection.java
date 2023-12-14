@@ -1,4 +1,4 @@
-package clix.crud.receta.combobox;
+package clix.components.combobox;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;

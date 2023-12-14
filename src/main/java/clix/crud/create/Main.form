@@ -34,7 +34,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="clix.crud.receta.CrazyPanel" name="crazyPanel1">
+    <Container class="clix.crud.create.CrazyPanel" name="crazyPanel1">
       <SubComponents>
         <Component class="javax.swing.JButton" name="jButton1">
           <Properties>

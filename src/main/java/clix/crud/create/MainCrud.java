@@ -2,12 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package clix.crud.receta;
+package clix.crud.create;
 
 import clix.home.Home;
 import clix.jnafilechooser.api.JnaFileChooser;
 import clix.manager.FormsManager;
-import clix.model.ModelDbReceta;
 import clix.model.ModelReceta;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;

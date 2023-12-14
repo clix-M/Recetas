@@ -238,7 +238,7 @@
     </Container>
     <Component class="javax.swing.JTextField" name="textAutor">
     </Component>
-    <Component class="clix.crud.receta.combobox.ComboBoxMultiSelection" name="comboBoxMultiSelection1">
+    <Component class="clix.crud.create.combobox.ComboBoxMultiSelection" name="comboBoxMultiSelection1">
     </Component>
     <Component class="clix.components.btn.Button" name="guardarReceta">
       <Properties>
@@ -320,7 +320,7 @@
         <Property name="text" type="java.lang.String" value="cantidad"/>
       </Properties>
     </Component>
-    <Component class="clix.crud.receta.combobox.ComboBoxMultiSelection" name="comboBoxMultiSelection2">
+    <Component class="clix.crud.create.combobox.ComboBoxMultiSelection" name="comboBoxMultiSelection2">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>

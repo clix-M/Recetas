@@ -4,11 +4,9 @@
  */
 package clix.crud.update;
 
-import clix.crud.receta.MainCrud;
-import clix.crud.receta.combobox.ComboBoxMultiSelection;
+import clix.components.combobox.ComboBoxMultiSelection;
 import clix.home.Home;
 import clix.manager.FormsManager;
-import clix.manager.SessionManager;
 import clix.model.ModelReceta;
 import clix.util.db;
 
@@ -43,7 +41,7 @@ public class MainCrudUpdate2 extends JPanel {
                 testData(comboBoxMultiSelection1);
                 testData2(comboBoxMultiSelection2);
 
-                // pasar los datos a los campos
+                // getData() modifica las listas ingredientesG y cantidadesG
                 getDATA();
 
                 // poner los datos en los campos
@@ -51,24 +49,6 @@ public class MainCrudUpdate2 extends JPanel {
                 comboBoxMultiSelection2.setSelectedItems(cantidadesG);
 
                 // cambiar el color de los botones
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 btnRegresar.setBackground(new java.awt.Color(253, 83, 83));
                 btnRegresar.setForeground(new java.awt.Color(245, 245, 245));
                 btnRegresar.setRippleColor(new java.awt.Color(255, 255, 255));
@@ -119,6 +99,8 @@ public class MainCrudUpdate2 extends JPanel {
                         System.out.println(ex);
                 }
 
+
+
                 // sacar los ingredientes de la base de datos
                 sql = "SELECT Ingrediente.nombre, Ingrediente.medida FROM Ingrediente INNER JOIN Ingrediente_receta ON Ingrediente.id_ingrediente = Ingrediente_receta.id_ingrediente WHERE Ingrediente_receta.id_receta = ?";
                 try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
@@ -129,10 +111,7 @@ public class MainCrudUpdate2 extends JPanel {
                                         String medida = rs.getString(2);
                                         ingredientesG.add(nombre);
                                         cantidadesG.add(medida);
-
-
                                 }
-
                         }
                 } catch (Exception ex) {
                         System.out.println(ex);
@@ -162,7 +141,7 @@ public class MainCrudUpdate2 extends JPanel {
                 jScrollPane1 = new JScrollPane();
                 textAreaComentario = new JTextArea();
                 textAutor = new JTextField();
-                comboBoxMultiSelection1 = new clix.crud.receta.combobox.ComboBoxMultiSelection<>();
+                comboBoxMultiSelection1 = new ComboBoxMultiSelection<>();
                 guardarReceta = new clix.components.btn.Button();
                 btnRegresar = new clix.components.btn.Button();
                 txtDate = new JTextField();
@@ -171,7 +150,7 @@ public class MainCrudUpdate2 extends JPanel {
                 lblComentario1 = new JLabel();
                 jComboBox1 = new JComboBox<>();
                 lblIngredieentes1 = new JLabel();
-                comboBoxMultiSelection2 = new clix.crud.receta.combobox.ComboBoxMultiSelection<>();
+                comboBoxMultiSelection2 = new ComboBoxMultiSelection<>();
                 jLabel2 = new JLabel();
                 jLabel5 = new JLabel();
                 jLabel7 = new JLabel();
@@ -593,7 +572,7 @@ public class MainCrudUpdate2 extends JPanel {
                 String autor = textAutor.getText();
                 String fecha = txtDate.getText();
                 String comentario = textAreaComentario.getText();
-                // hace rque favorito sea un booleano
+                // hace que favorito sea un booleano
                 String favoritoText = Objects.requireNonNull(jComboBox1.getSelectedItem()).toString();
                 // tru si es si y false si es no
                 boolean favorito = favoritoText.equals("si");
@@ -602,42 +581,52 @@ public class MainCrudUpdate2 extends JPanel {
                         JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos");
                 } else {
                         try {
-                                // como actualizar algo que se inserta de esta manera
-                                /*
+                                // Primero, elimina todas las relaciones de ingredientes existentes para la receta
+                                String sqlDelete = "DELETE FROM Ingrediente_receta WHERE id_receta = ?";
+                                try (PreparedStatement pst = db.getConnection().prepareStatement(sqlDelete)) {
+                                        pst.setInt(1, receta.getId_receta());
+                                        pst.executeUpdate();
+                                } catch (Exception ex) {
+                                        System.out.println(ex);
+                                }
+
+                                // Luego, para cada ingrediente y cantidad en las listas
                                 for (int i = 0; i < ingredientes.size(); i++) {
                                         String ingrediente = ingredientes.get(i);
                                         String cantidad = cantidades.get(i);
 
-                                        String sql = "INSERT INTO Ingrediente (nombre, medida) VALUES (?, ?) RETURNING id_ingrediente";
-                                        try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
+                                        // Inserta el nuevo ingrediente en la tabla Ingrediente y obtén su id_ingrediente
+                                        String sqlInsertIngrediente = "INSERT INTO Ingrediente (nombre, medida) VALUES (?, ?) RETURNING id_ingrediente";
+                                        try (PreparedStatement pst = db.getConnection().prepareStatement(sqlInsertIngrediente)) {
                                                 pst.setString(1, ingrediente);
                                                 pst.setString(2, cantidad);
                                                 try (ResultSet rs = pst.executeQuery()) {
                                                         if (rs.next()) {
                                                                 int id_ingrediente = rs.getInt(1);
 
-                                                                sql = "INSERT INTO Ingrediente_receta (id_receta, id_ingrediente) VALUES (?, ?)";
-                                                                try (PreparedStatement pst2 = db.getConnection()
-                                                                                .prepareStatement(sql)) {
+                                                                // Inserta la nueva relación en la tabla Ingrediente_receta
+                                                                String sqlInsertRelacion = "INSERT INTO Ingrediente_receta (id_receta, id_ingrediente) VALUES (?, ?)";
+                                                                try (PreparedStatement pst2 = db.getConnection().prepareStatement(sqlInsertRelacion)) {
                                                                         pst2.setInt(1, receta.getId_receta());
                                                                         pst2.setInt(2, id_ingrediente);
                                                                         pst2.executeUpdate();
                                                                 }
                                                         }
                                                 }
+                                        } catch (Exception ex) {
+                                                System.out.println(ex);
                                         }
                                 }
 
-                                 */
 
-
+                                // actualiza el comentario de la receta
                                 String sqlB = "UPDATE Comentarios SET nombre_autor = ?, fecha = ?, comentario = ? WHERE id_receta = ?";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlB)) {
                                         pst.setString(1, autor);
-
+                                        // Cambia el formato de la fecha
                                         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                                         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
+                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter); // Cambia el índice a 1
                                         String formattedDate = outputFormatter.format(parsedDate);
                                         pst.setDate(2, java.sql.Date.valueOf(formattedDate));  // Cambia el índice a 2
 
@@ -648,6 +637,7 @@ public class MainCrudUpdate2 extends JPanel {
                                         System.out.println("Comentarios: " +ex);
                                 }
 
+                                // actualiza el favorito
                                 String sqlC = "UPDATE Favorito SET favorito = ? WHERE id_receta = ?";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
                                         pst.setBoolean(1, favorito);
@@ -669,7 +659,7 @@ public class MainCrudUpdate2 extends JPanel {
         }// GEN-LAST:event_guardarRecetaActionPerformed
 
         private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnRegresarActionPerformed
-                FormsManager.getInstance().showForm(new MainCrudUpdate2(receta));
+                FormsManager.getInstance().showForm(new MainCrudUpdate(receta));
         }// GEN-LAST:event_btnRegresarActionPerformed
 
         private void btnAhoraActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnAhoraActionPerformed
@@ -688,8 +678,8 @@ public class MainCrudUpdate2 extends JPanel {
         private JButton btnAhora;
         private JButton btnCalendar;
 
-        private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection1;
-        private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection2;
+        private ComboBoxMultiSelection comboBoxMultiSelection1;
+        private ComboBoxMultiSelection comboBoxMultiSelection2;
 
         private clix.components.btn.Button btnRegresar;
         private clix.components.datechooser.DateChooser date;

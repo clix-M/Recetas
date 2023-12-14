@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package clix.crud.receta;
+package clix.crud.create;
 
+import clix.components.combobox.ComboBoxMultiSelection;
 import clix.home.Home;
 import clix.manager.FormsManager;
 import clix.manager.SessionManager;
@@ -78,7 +79,7 @@ public class MainCrud2 extends javax.swing.JPanel {
                 jScrollPane1 = new javax.swing.JScrollPane();
                 textAreaComentario = new javax.swing.JTextArea();
                 textAutor = new javax.swing.JTextField();
-                comboBoxMultiSelection1 = new clix.crud.receta.combobox.ComboBoxMultiSelection();
+                comboBoxMultiSelection1 = new ComboBoxMultiSelection();
                 guardarReceta = new clix.components.btn.Button();
                 btnRegresar = new clix.components.btn.Button();
                 txtDate = new javax.swing.JTextField();
@@ -87,7 +88,7 @@ public class MainCrud2 extends javax.swing.JPanel {
                 lblComentario1 = new javax.swing.JLabel();
                 jComboBox1 = new javax.swing.JComboBox<>();
                 lblIngredieentes1 = new javax.swing.JLabel();
-                comboBoxMultiSelection2 = new clix.crud.receta.combobox.ComboBoxMultiSelection();
+                comboBoxMultiSelection2 = new ComboBoxMultiSelection();
                 jLabel2 = new javax.swing.JLabel();
                 jLabel5 = new javax.swing.JLabel();
                 jLabel7 = new javax.swing.JLabel();
@@ -592,8 +593,8 @@ public class MainCrud2 extends javax.swing.JPanel {
         private javax.swing.JButton btnAhora;
         private javax.swing.JButton btnCalendar;
         private clix.components.btn.Button btnRegresar;
-        private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection1;
-        private clix.crud.receta.combobox.ComboBoxMultiSelection comboBoxMultiSelection2;
+        private ComboBoxMultiSelection comboBoxMultiSelection1;
+        private ComboBoxMultiSelection comboBoxMultiSelection2;
         private clix.components.datechooser.DateChooser date;
         private clix.components.btn.Button guardarReceta;
         private javax.swing.JComboBox<String> jComboBox1;

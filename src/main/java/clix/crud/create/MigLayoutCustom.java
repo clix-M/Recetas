@@ -1,4 +1,4 @@
-package clix.crud.receta;
+package clix.crud.create;
 
 import java.awt.Component;
 import javax.swing.JComponent;
