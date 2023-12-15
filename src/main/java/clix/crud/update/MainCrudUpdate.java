@@ -5,8 +5,8 @@
 package clix.crud.update;
 
 import clix.components.btn.Button;
-import clix.home.Home;
-import clix.jnafilechooser.api.JnaFileChooser;
+import clix.view.home.Home;
+import clix.components.jnafilechooser.api.JnaFileChooser;
 import clix.manager.FormsManager;
 import clix.model.ModelReceta;
 import clix.util.db;

@@ -7,7 +7,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.
  */
-package clix.jnafilechooser.api;
+package clix.components.jnafilechooser.api;
 
 import com.sun.jna.Platform;
 

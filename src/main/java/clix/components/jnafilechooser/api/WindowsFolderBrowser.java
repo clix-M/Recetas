@@ -7,13 +7,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.
  */
-package clix.jnafilechooser.api;
+package clix.components.jnafilechooser.api;
 
 import java.awt.Window;
 import java.io.File;
 
-import clix.jnafilechooser.win32.Ole32;
-import clix.jnafilechooser.win32.Shell32;
+import clix.components.jnafilechooser.win32.Ole32;
+import clix.components.jnafilechooser.win32.Shell32;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;

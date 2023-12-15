@@ -4,14 +4,13 @@
  */
 package clix.crud.create;
 
-import clix.home.Home;
-import clix.jnafilechooser.api.JnaFileChooser;
+import clix.view.home.Home;
+import clix.components.jnafilechooser.api.JnaFileChooser;
 import clix.manager.FormsManager;
 import clix.model.ModelReceta;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
 import raven.alerts.MessageAlerts;
-import raven.popup.GlassPanePopup;
 import raven.toast.Notifications;
 
 import javax.swing.*;

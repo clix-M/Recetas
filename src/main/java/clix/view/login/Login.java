@@ -2,16 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package clix.login;
+package clix.view.login;
 
-import clix.home.Home;
+import clix.view.home.Home;
 import clix.manager.FormsManager;
 import clix.manager.SessionManager;
 import clix.model.Usuario;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
 import net.miginfocom.swing.MigLayout;
-import raven.alerts.MessageAlerts;
 import raven.toast.Notifications;
 
 import javax.swing.*;

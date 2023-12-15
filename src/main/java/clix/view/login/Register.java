@@ -1,12 +1,11 @@
 
-package clix.login;
+package clix.view.login;
 
 import clix.components.PasswordStrengthStatus;
-import clix.home.Home;
+import clix.view.home.Home;
 import clix.manager.FormsManager;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 import net.miginfocom.swing.MigLayout;
 import raven.alerts.MessageAlerts;
 import raven.toast.Notifications;

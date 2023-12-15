@@ -5,7 +5,7 @@
 package clix.crud.create;
 
 import clix.components.combobox.ComboBoxMultiSelection;
-import clix.home.Home;
+import clix.view.home.Home;
 import clix.manager.FormsManager;
 import clix.manager.SessionManager;
 import clix.model.ModelReceta;

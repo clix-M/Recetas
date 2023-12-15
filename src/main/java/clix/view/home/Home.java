@@ -1,18 +1,15 @@
 
-package clix.home;
+package clix.view.home;
 import clix.components.Item;
 import clix.crud.create.MainCrud;
 import clix.crud.update.MainCrudUpdate;
 import clix.event.EventItem;
 import clix.main.Application;
 import clix.manager.FormsManager;
-import clix.manager.SessionManager;
 import clix.model.Categoria;
 import clix.model.Comentarios;
 import clix.model.ModelReceta;
 import clix.util.db;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.itextpdf.io.image.ImageData;
@@ -22,7 +19,6 @@ import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
