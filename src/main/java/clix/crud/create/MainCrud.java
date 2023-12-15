@@ -362,6 +362,7 @@ public class MainCrud extends javax.swing.JPanel {
         double tiempoPrep = Double.parseDouble(tiempoPrepString);
 
 
+
         if (nombreReceta.isEmpty() || descripcion.isEmpty() || dificultad == 0 || categoria == 0 || pasosReceta.isEmpty() || tiempoPrep == 0 || imageBytes == null) {
             JOptionPane.showMessageDialog(null, "Debe llenar todos los campos");
         } else {

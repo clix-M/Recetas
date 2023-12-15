@@ -29,6 +29,13 @@ public Comentarios() {
         this.comentario = comentario;
     }
 
+    public Comentarios(String nombreAutor, Date date2, String comentario) {
+        this.nombre_autor = nombreAutor;
+        this.fecha = date2;
+        this.comentario = comentario;
+    }
+
+
     public int getId_comentarios() {
         return id_comentarios;
     }

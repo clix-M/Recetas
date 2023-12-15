@@ -76,6 +76,7 @@ public class MainCrudUpdate2 extends JPanel {
                                         txtDate.setText(fecha);
                                         textAreaComentario.setText(comentario);
                                 }
+
                         }
                 } catch (Exception ex) {
                         System.out.println(ex);
@@ -574,8 +575,9 @@ public class MainCrudUpdate2 extends JPanel {
                 String comentario = textAreaComentario.getText();
                 // hace que favorito sea un booleano
                 String favoritoText = Objects.requireNonNull(jComboBox1.getSelectedItem()).toString();
-                // tru si es si y false si es no
+                // tru si es si y false si es no y enviar como booleano
                 boolean favorito = favoritoText.equals("si");
+
 
                 if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.isEmpty() || fecha.isEmpty()|| comentario.isEmpty()|| favoritoText.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos");
@@ -624,18 +626,17 @@ public class MainCrudUpdate2 extends JPanel {
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlB)) {
                                         pst.setString(1, autor);
                                         // Cambia el formato de la fecha
-                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter); // Cambia el índice a 1
-                                        String formattedDate = outputFormatter.format(parsedDate);
-                                        pst.setDate(2, java.sql.Date.valueOf(formattedDate));  // Cambia el índice a 2
+                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
 
+                                        pst.setObject(2, parsedDate);
                                         pst.setString(3, comentario);
                                         pst.setInt(4, receta.getId_receta());
                                         pst.executeUpdate();
                                 } catch (Exception ex) {
                                         System.out.println("Comentarios: " +ex);
                                 }
+
 
                                 // actualiza el favorito
                                 String sqlC = "UPDATE Favorito SET favorito = ? WHERE id_receta = ?";

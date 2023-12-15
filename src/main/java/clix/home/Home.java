@@ -1,13 +1,23 @@
 
 package clix.home;
-
 import clix.components.Item;
 import clix.crud.create.MainCrud;
 import clix.crud.update.MainCrudUpdate;
 import clix.event.EventItem;
 import clix.manager.FormsManager;
+import clix.manager.SessionManager;
+import clix.model.Categoria;
+import clix.model.Comentarios;
 import clix.model.ModelReceta;
 import clix.util.db;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
 import org.jdesktop.animation.timing.interpolation.PropertySetter;
@@ -19,11 +29,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -154,8 +167,12 @@ public class Home extends javax.swing.JPanel {
     private EventItem eventItem;
 
     public void addItem(ModelReceta data){
+
+
         Item item = new Item();
+
         item.setData(data);
+
         item.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -165,6 +182,11 @@ public class Home extends javax.swing.JPanel {
                 }
             }
         });
+
+
+
+
+
         panelItem.add(item);
         panelItem.revalidate();
         panelItem.repaint();
@@ -287,10 +309,269 @@ public class Home extends javax.swing.JPanel {
         DecimalFormat df = new DecimalFormat("#.00");
         lbTiempo.setText(df.format(data.getTiempo_de_preparacion()) + " minutos");
 
+    }
 
-        btnSeeMore.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null, "Ver mas");
-        });
+    public void cargarPasos(ModelReceta data){
+
+        // global
+        ModelReceta receta = new ModelReceta();
+        Comentarios comentarios = new Comentarios();
+        Categoria categoria = new Categoria();
+
+        ArrayList<String> ingredientesG = new ArrayList<>();
+        ArrayList<String> cantidadesG = new ArrayList<>();
+
+        boolean fav = false;
+
+
+        // sacamos la receta de la base de datos y la mostramos en un joptionpane
+        String sql = "SELECT * FROM Receta WHERE id_receta = ?";
+        try (PreparedStatement pst = db.getConnection().prepareStatement(sql)) {
+            pst.setInt(1, data.getId_receta());
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                String nombre = rs.getString("nombre");
+                String descripcion = rs.getString("descripcion");
+                double tiempo_de_preparacion = rs.getDouble("tiempo_de_preparacion");
+                String instruccion_de_preparacion = rs.getString("instruccion_de_preparacion");
+                int dificultad = rs.getInt("dificultad");
+                int id_categoria = rs.getInt("id_categoria");
+                byte[] imagenBytes = rs.getBytes("imagen");
+                ImageIcon imagen = null;
+                if (imagenBytes != null && imagenBytes.length > 0) {
+                    BufferedImage img = ImageIO.read(new ByteArrayInputStream(imagenBytes));
+                    if (img != null) {
+                        imagen = new ImageIcon(img);
+                    }
+                }
+                //
+                receta.setNombre(nombre);
+                receta.setDescripcion(descripcion);
+                receta.setTiempo_de_preparacion(tiempo_de_preparacion);
+                receta.setInstruccion_de_preparacion(instruccion_de_preparacion);
+                receta.setDificultad(dificultad);
+                receta.setId_categoria(id_categoria);
+                receta.setImagen(imagen);
+
+
+
+
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        // sacamos comentarios de la base
+        String sqlCom = "SELECT nombre_autor, fecha, comentario FROM Comentarios WHERE id_receta = ?";
+        try (PreparedStatement pst = db.getConnection().prepareStatement(sqlCom)) {
+            pst.setInt(1, data.getId_receta());
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String nombre_autor = rs.getString(1);
+                    String fecha = rs.getString(2);
+
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    Date date = inputFormat.parse(fecha);
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    String fechaDate = outputFormat.format(date);
+                    Date date2 = outputFormat.parse(fechaDate);
+
+
+                    String comentario = rs.getString(3);
+
+                    comentarios.setNombre_autor(nombre_autor);
+                    comentarios.setFecha(date2);
+                    comentarios.setComentario(comentario);
+
+
+                }
+
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+
+        // sacar categorias de la base
+        String sqlCat = "SELECT * FROM Categoria WHERE id_categoria = ?";
+        try (PreparedStatement pst = db.getConnection().prepareStatement(sqlCat)) {
+            pst.setInt(1, data.getId_categoria());
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                int id_categoria = rs.getInt("id_categoria");
+                String nombre = rs.getString("nombre");
+
+                categoria.setId_categoria(id_categoria);
+                categoria.setNombre(nombre);
+
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        // sacamos ingredientes de la base
+        String sqlIngCoM = "SELECT Ingrediente.nombre, Ingrediente.medida FROM Ingrediente INNER JOIN Ingrediente_receta ON Ingrediente.id_ingrediente = Ingrediente_receta.id_ingrediente WHERE Ingrediente_receta.id_receta = ?";
+        try (PreparedStatement pst = db.getConnection().prepareStatement(sqlIngCoM)) {
+            pst.setInt(1, data.getId_receta());
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    String nombre = rs.getString(1);
+                    String medida = rs.getString(2);
+
+                    // creamos un arraylist para guardar los ingredientes y cantidades
+
+                    ingredientesG.add(nombre);
+                    cantidadesG.add(medida);
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        // sacamos si es favorito o no
+        String sqlFav = "SELECT * FROM Favorito WHERE id_receta = ?";
+        try (PreparedStatement pst = db.getConnection().prepareStatement(sqlFav)) {
+            pst.setInt(1, data.getId_receta());
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                fav = true;
+            }
+            System.out.println(fav);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+
+
+        String path = "recetas.pdf";
+
+        // usaremos  IText 7 Core » 8.0.2
+
+        try {
+            PdfWriter pdfWriter = new PdfWriter(path);
+            PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+            pdfDocument.setDefaultPageSize(PageSize.A4);
+            com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDocument);
+
+            // dar titulo al pdf
+
+            // receta
+            Paragraph titulo = new Paragraph(receta.getNombre());
+            titulo.setTextAlignment(TextAlignment.CENTER);
+            titulo.setFontColor(ColorConstants.RED);
+            titulo.setBold();
+            titulo.setFontSize(20);
+            document.add(titulo);
+
+
+            // descripcion:
+
+            Paragraph desc = new Paragraph("Descripcion:");
+            desc.setBold();
+            document.add(desc);
+
+            Paragraph descripcion = new Paragraph(receta.getDescripcion());
+            descripcion.setTextAlignment(TextAlignment.LEFT);
+            descripcion.setMarginBottom(20);
+            document.add(descripcion);
+
+            // tiempo de preparacion, dificultad y categoria
+            Table table1 = new Table(2);
+            table1.setPadding(15);
+            table1.addCell(new Cell().add(new Paragraph("Tiempo de preparacion:").setBold()));
+            table1.addCell(new Cell().add(new Paragraph(receta.getTiempo_de_preparacion() + " minutos")));
+            table1.addCell(new Cell().add(new Paragraph("Dificultad:").setBold()));
+            table1.addCell(new Cell().add(new Paragraph(receta.getDificultad() == 1 ? "Facil" : receta.getDificultad() == 2 ? "Moderado" : "Dificil")));
+            table1.addCell(new Cell().add(new Paragraph("Categoria:").setBold()));
+            table1.addCell(new Cell().add(new Paragraph(receta.getId_categoria() == 1 ? "Desayuno" : receta.getId_categoria() == 2 ? "Almuerzo" : receta.getId_categoria() == 3 ? "Cena" : "Postre")));
+            table1.setMarginBottom(20);
+            document.add(table1);
+
+            // ingredientes
+            // hace una trabala dinamica con la cantidad de ingredientes que tenga la receta pero solo muestra 2 columnas
+            Table table2 = new Table(2);
+            table2.setPadding(15);
+            table2.addCell(new Cell().add(new Paragraph("Ingredientes:").setBold()));
+            table2.addCell(new Cell().add(new Paragraph("Cantidad:").setBold()));
+            for (int i = 0; i < ingredientesG.size(); i++) {
+                table2.addCell(new Cell().add(new Paragraph(ingredientesG.get(i))));
+                table2.addCell(new Cell().add(new Paragraph(cantidadesG.get(i))));
+            }
+
+            table2.setMarginBottom(20);
+            document.add(table2);
+
+
+
+            // instruccion de preparacion
+            Paragraph instruccion = new Paragraph("Instruccion de preparacion:");
+            instruccion.setBold();
+            document.add(instruccion);
+            String instruccion_de_preparacion = receta.getInstruccion_de_preparacion();
+            instruccion_de_preparacion = instruccion_de_preparacion.replace("-", "\n").replace("_", "\n");
+            document.add(new Paragraph(instruccion_de_preparacion));
+
+
+            // comentarios
+            Paragraph comen = new Paragraph("Comentarios:");
+            comen.setBold();
+            document.add(comen);
+
+            // si no hay comentarios
+            if (comentarios.getNombre_autor() == null){
+                document.add(new Paragraph("No hay comentarios"));
+            } else {
+                // sacar la fecha solo como año-mes-dia
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String fechaDate = outputFormat.format(comentarios.getFecha());
+                System.out.println(fechaDate);
+
+                document.add(new Paragraph(comentarios.getNombre_autor() + " - " + fechaDate));
+
+                if (fav){
+                    document.add(new Paragraph("Favorito"));
+                } else {
+                    document.add(new Paragraph("No es favorito"));
+                }
+
+
+
+                document.add(new Paragraph(comentarios.getComentario()));
+            }
+
+            // cerrar el documento
+
+
+
+
+            document.close();
+
+
+            // preguntar si desea abrir el pdf y la otra opcion es que el mismo guardara el pdf en la carpeta de su ordenador
+            int resp = JOptionPane.showConfirmDialog(null, "¿Desea abrir el pdf?", "Alerta!", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (resp == JOptionPane.YES_OPTION) {
+                // abrir el pdf
+                try {
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + path);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error al abrir el pdf");
+                }
+            } else {
+                // guardar el pdf
+                JOptionPane.showMessageDialog(null, "El pdf se ha guardado en la carpeta de su ordenador");
+            }
+
+
+
+
+
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 
@@ -356,20 +637,13 @@ public class Home extends javax.swing.JPanel {
         lbTiempo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         btnDelete.setText("Eliminar");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
 
         btnSeeMore.setText("Ver pasos");
+        btnSeeMore.addActionListener(this::BtnSeeMoreActionPerformed);
 
         btnEdit.setText("Editar");
-        btnEdit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditActionPerformed(evt);
-            }
-        });
+        btnEdit.addActionListener(this::btnEditActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -534,7 +808,12 @@ public class Home extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+    private void BtnSeeMoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        cargarPasos(itemSelected);
+
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerfverormed
 
         // itemSelected.getId_receta();
        // FormsManager.getInstance().showForm(new MainCrudUpdate());
