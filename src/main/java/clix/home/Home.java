@@ -4,12 +4,17 @@ import clix.components.Item;
 import clix.crud.create.MainCrud;
 import clix.crud.update.MainCrudUpdate;
 import clix.event.EventItem;
+import clix.main.Application;
 import clix.manager.FormsManager;
 import clix.manager.SessionManager;
 import clix.model.Categoria;
 import clix.model.Comentarios;
 import clix.model.ModelReceta;
 import clix.util.db;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -709,12 +714,11 @@ public class Home extends javax.swing.JPanel {
             }
         });
 
-        jButton2.setText("change theme");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
+        jButton2.setText(Application.isDarkMode ? "Light Mode" : "Dark Mode");
+
+
+
+        jButton2.addActionListener(this::jButton2ActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -805,7 +809,29 @@ public class Home extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+
+
+
+        try {
+            if (Application.isDarkMode ) {
+                UIManager.setLookAndFeel(new FlatMacLightLaf());
+                Application.isDarkMode  = false;
+            } else {
+                UIManager.setLookAndFeel(new FlatMacDarkLaf());
+                Application.isDarkMode  = true;
+            }
+            SwingUtilities.updateComponentTreeUI(getRootPane());
+        } catch (Exception ex) {
+            System.err.println("Failed to initialize theme");
+        }
+
+        // tambien que cambien el texto del boton
+        if (Application.isDarkMode){
+            jButton2.setText("Dark Mode");
+        } else {
+            jButton2.setText("Light Mode");
+        }
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void BtnSeeMoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

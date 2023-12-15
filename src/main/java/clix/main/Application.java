@@ -15,6 +15,8 @@ import java.awt.*;
  * @author clint
  */
 public class Application extends javax.swing.JFrame {
+
+    public static boolean isDarkMode = true;
     public Application() {
         initComponents();
     }
@@ -38,7 +40,12 @@ public class Application extends javax.swing.JFrame {
         FlatRobotoFont.install();
         FlatLaf.registerCustomDefaultsSource("clixThemes");
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
-        FlatMacLightLaf.setup();
+
+        if (isDarkMode){
+            FlatMacLightLaf.setup();
+        }else {
+            FlatMacDarkLaf.setup();
+        }
         java.awt.EventQueue.invokeLater(() -> {
             new Application().setVisible(true);
         });
