@@ -6,7 +6,11 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import raven.alerts.MessageAlerts;
+import raven.popup.GlassPanePopup;
+import raven.toast.Notifications;
 
+import javax.management.Notification;
 import javax.swing.*;
 import java.awt.*;
 
@@ -19,6 +23,9 @@ public class Application extends javax.swing.JFrame {
     public static boolean isDarkMode = true;
     public Application() {
         initComponents();
+        Notifications.getInstance().setJFrame(this);
+        GlassPanePopup.install(this);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -49,6 +56,12 @@ public class Application extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new Application().setVisible(true);
         });
+
+
+
+
+
+
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

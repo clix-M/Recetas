@@ -9,8 +9,10 @@ import clix.home.Home;
 import clix.manager.FormsManager;
 import clix.model.ModelReceta;
 import clix.util.db;
+import raven.alerts.MessageAlerts;
 
 import javax.swing.*;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -72,6 +74,14 @@ public class MainCrudUpdate2 extends JPanel {
                                         String nombre_autor = rs.getString(1);
                                         String fecha = rs.getString(2);
                                         String comentario = rs.getString(3);
+
+                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
+                                        // lo cambia a 15/12/2023
+                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                                        fecha = outputFormatter.format(parsedDate);
+
+
                                         textAutor.setText(nombre_autor);
                                         txtDate.setText(fecha);
                                         textAreaComentario.setText(comentario);
@@ -571,7 +581,12 @@ public class MainCrudUpdate2 extends JPanel {
 
 
                 String autor = textAutor.getText();
-                String fecha = txtDate.getText();
+                String fechatxt = txtDate.getText();
+
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                LocalDate parsedDate = LocalDate.parse(fechatxt, inputFormatter);
+                Date fecha = java.sql.Date.valueOf(parsedDate);
+
                 String comentario = textAreaComentario.getText();
                 // hace que favorito sea un booleano
                 String favoritoText = Objects.requireNonNull(jComboBox1.getSelectedItem()).toString();
@@ -579,8 +594,9 @@ public class MainCrudUpdate2 extends JPanel {
                 boolean favorito = favoritoText.equals("si");
 
 
-                if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.isEmpty() || fecha.isEmpty()|| comentario.isEmpty()|| favoritoText.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos");
+                if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.equals("") || fechatxt.equals("") || comentario.equals("")) {
+                        MessageAlerts.getInstance().showMessage("Error", "Por favor, rellene todos los campos", MessageAlerts.MessageType.WARNING);
+
                 } else {
                         try {
                                 // Primero, elimina todas las relaciones de ingredientes existentes para la receta
@@ -625,11 +641,7 @@ public class MainCrudUpdate2 extends JPanel {
                                 String sqlB = "UPDATE Comentarios SET nombre_autor = ?, fecha = ?, comentario = ? WHERE id_receta = ?";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlB)) {
                                         pst.setString(1, autor);
-                                        // Cambia el formato de la fecha
-                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
-
-                                        pst.setObject(2, parsedDate);
+                                        pst.setDate(2, fecha);
                                         pst.setString(3, comentario);
                                         pst.setInt(4, receta.getId_receta());
                                         pst.executeUpdate();
@@ -648,7 +660,7 @@ public class MainCrudUpdate2 extends JPanel {
                                         System.out.println("Favorito: " + ex);
                                 }
 
-                                JOptionPane.showMessageDialog(null, "Receta actualizada con éxito");
+                                MessageAlerts.getInstance().showMessage("Exito", "Receta actualizada correctamente", MessageAlerts.MessageType.SUCCESS);
 
                                 FormsManager.getInstance().showForm(new Home());
                         } catch (Exception ex) {

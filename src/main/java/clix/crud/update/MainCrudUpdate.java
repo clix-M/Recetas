@@ -11,6 +11,7 @@ import clix.manager.FormsManager;
 import clix.model.ModelReceta;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
+import raven.alerts.MessageAlerts;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -441,7 +442,8 @@ public class MainCrudUpdate extends JPanel {
 
 
         if (nombreReceta.isEmpty() || descripcion.isEmpty() || dificultad == 0 || categoria == 0 || pasosReceta.isEmpty() || tiempoPrep == 0 ) {
-            JOptionPane.showMessageDialog(null, "Debe llenar todos los campos");
+            MessageAlerts.getInstance().showMessage("Malas noticias! ", "Debe llenar todos los campos", MessageAlerts.MessageType.WARNING);
+
         } else {
             try {
                 // ahora actualizar la receta que se acaba de guardar
@@ -456,7 +458,8 @@ public class MainCrudUpdate extends JPanel {
                 pstmt2.setBytes(7, imageBytes);
                 pstmt2.setInt(8, recetaPas.getId_receta());
                 pstmt2.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Receta actualizada correctamente");
+
+                MessageAlerts.getInstance().showMessage("Bien! ", "Receta actualizada correctamente", MessageAlerts.MessageType.SUCCESS);
 
 
             } catch (Exception ex) {

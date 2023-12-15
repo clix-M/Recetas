@@ -10,8 +10,11 @@ import clix.manager.FormsManager;
 import clix.manager.SessionManager;
 import clix.model.ModelReceta;
 import clix.util.db;
+import raven.alerts.MessageAlerts;
+import raven.toast.Notifications;
 
 import javax.swing.*;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -498,17 +501,42 @@ public class MainCrud2 extends javax.swing.JPanel {
                 List<String> cantidades = new ArrayList<>(comboBoxMultiSelection2.getSelectedItems());
 
                 String autor = textAutor.getText();
-                String fecha = txtDate.getText();
+                String fechatx = txtDate.getText();
+                //pasar fecha a tipo Date dd-MM-yyyy
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                LocalDate parsedDate = LocalDate.parse(fechatx, inputFormatter);
+                // ahora pasara a tipo Date
+                Date fecha = java.sql.Date.valueOf(parsedDate);
+
+
                 String comentario = textAreaComentario.getText();
                 // hace rque favorito sea un booleano
                 String favoritoText = Objects.requireNonNull(jComboBox1.getSelectedItem()).toString();
                 // tru si es si y false si es no
                 boolean favorito = favoritoText.equals("si");
 
-                if (ingredientes.isEmpty() || cantidades.isEmpty() || autor.isEmpty() || fecha.isEmpty()
-                                || comentario.isEmpty()
-                                || favoritoText.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos");
+                // ver si existe el id de la receta
+                int myId = 0;
+                if (receta.getId_receta() != 0) {
+                        myId = receta.getId_receta();
+                }
+
+                if (myId > 0) {
+                // validacion separada
+                if (ingredientes.isEmpty()){
+                        MessageAlerts.getInstance().showMessage("Ingrediente vacio", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+                } else if (cantidades.isEmpty()) {
+                        MessageAlerts.getInstance().showMessage("Cantidad vacia", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+                } else if (autor.isEmpty()) {
+                        MessageAlerts.getInstance().showMessage("Autor vacio", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+                } else if (fecha.equals("")) {
+                        MessageAlerts.getInstance().showMessage("Fecha vacia", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+                } else if (comentario.isEmpty()) {
+                        MessageAlerts.getInstance().showMessage("Comentario vacio", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+                } else if (favoritoText.isEmpty()) {
+                        MessageAlerts.getInstance().showMessage("Favorito vacio", "Por favor, rellene el campo", MessageAlerts.MessageType.WARNING);
+
+
                 } else {
                         try {
                                 for (int i = 0; i < ingredientes.size(); i++) {
@@ -536,22 +564,20 @@ public class MainCrud2 extends javax.swing.JPanel {
                                 }
 
 
+
                                 String sqlB = "INSERT INTO Comentarios (id_receta, nombre_autor, fecha, comentario) VALUES (?, ?, ?, ?)";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlB)) {
                                         pst.setInt(1, receta.getId_receta());
                                         pst.setString(2, autor);
 
-                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                        LocalDate parsedDate = LocalDate.parse(fecha, inputFormatter);
-                                        String formattedDate = outputFormatter.format(parsedDate);
-                                        pst.setDate(3, java.sql.Date.valueOf(formattedDate));
+                                        pst.setDate(3, fecha);
 
                                         pst.setString(4, comentario);
                                         pst.executeUpdate();
                                 } catch (Exception ex) {
                                         System.out.println(ex);
                                 }
+                                // favorito
 
                                 String sqlC = "INSERT INTO Favorito (favorito, id_usuario, id_receta) VALUES (?, ?, ?)";
                                 try (PreparedStatement pst = db.getConnection().prepareStatement(sqlC)) {
@@ -563,13 +589,19 @@ public class MainCrud2 extends javax.swing.JPanel {
                                         System.out.println(ex);
                                 }
 
-                                JOptionPane.showMessageDialog(null, "Receta guardada con éxito");
 
                                 FormsManager.getInstance().showForm(new Home());
                         } catch (Exception ex) {
                                 System.out.println(ex);
                         }
+
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_RIGHT,"Receta guardada con éxito");
                 }
+                } else {
+                        MessageAlerts.getInstance().showMessage("No existe la receta", "Por favor tienes que crear el nombre de la receta", MessageAlerts.MessageType.ERROR);
+                }
+
+
 
         }// GEN-LAST:event_guardarRecetaActionPerformed
 

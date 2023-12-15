@@ -11,6 +11,8 @@ import clix.model.Usuario;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
 import net.miginfocom.swing.MigLayout;
+import raven.alerts.MessageAlerts;
+import raven.toast.Notifications;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +34,7 @@ public class Login extends JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         setLayout(new MigLayout("fill,insets 20", "[center]", "[center]"));
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
@@ -56,8 +59,8 @@ public class Login extends JPanel {
             String user = txtUsername.getText();
             String pass = new String(txtPassword.getPassword());
 
-            if (user.equals("") || pass.equals("")) {
-                JOptionPane.showMessageDialog(null, "Debe ingresar usuario y contraseña");
+            if (user.isEmpty() || pass.isEmpty()) {
+                Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT,"Debe ingresar usuario y contraseña");
             } else {
                 try {
                     Statement st = db.getConnection().createStatement();
@@ -72,14 +75,19 @@ public class Login extends JPanel {
                         // insertar en la sesion el id del usuario
                         Usuario usuario = new Usuario(userId, nombre, correo_electronico);
                         SessionManager.getInstance().setUserId(usuario.getId_usuario());
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER,"Bienvenido " + usuario.getNombre());
                         FormsManager.getInstance().showForm(new Home());
                     } else {
-                        JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT,"Usuario o contraseña incorrectos");
                     }
                 } catch (Exception ex) {
                     System.out.println(ex);
                 }
             }
+
+
+
+
         });
 
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ingrese su nombre de usuario");

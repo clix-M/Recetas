@@ -8,6 +8,8 @@ import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import net.miginfocom.swing.MigLayout;
+import raven.alerts.MessageAlerts;
+import raven.toast.Notifications;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,15 +75,16 @@ public class Register extends javax.swing.JPanel {
             // 4. que el campo password y confirm password sean iguales
 
             // 1
-            if (user.equals("")) {
-                JOptionPane.showMessageDialog(null, "Debe ingresar usuario");
+            if (user.isEmpty()) {
+                MessageAlerts.getInstance().showMessage("CUIDADO! ", "Debe ingresar usuario", MessageAlerts.MessageType.ERROR);
             } else {
                 // 2
-                if (email.equals("")) {
-                    JOptionPane.showMessageDialog(null, "Debe ingresar email");
-                    // regex
+                if (email.isEmpty()) {
+                    MessageAlerts.getInstance().showMessage("CUIDADO! ", "Debe ingresar email", MessageAlerts.MessageType.WARNING);
+
+                    // regex sirve para validar que el email sea valido
                 } else if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-                    JOptionPane.showMessageDialog(null, "Debe ingresar un email válido");
+                    MessageAlerts.getInstance().showMessage("CUIDADO! ", "Debe ingresar un email válido", MessageAlerts.MessageType.WARNING);
                 } else {
                     // 2.1
                     try {
@@ -91,22 +94,24 @@ public class Register extends javax.swing.JPanel {
                         resultSet = st.executeQuery(sql);
 
                         if (resultSet.next()) {
-                            JOptionPane.showMessageDialog(null, "El correo ya existe");
+                            MessageAlerts.getInstance().showMessage("CUIDADO! ", "El correo ya existe", MessageAlerts.MessageType.WARNING);
                         } else {
                             // 3
                             if (passwordStrengthStatus.initPasswordField(txtPassword) < 2) {
-                                JOptionPane.showMessageDialog(null, "La contraseña debe es muy debil");
+                                MessageAlerts.getInstance().showMessage("CUIDADO! ", "La contraseña debe es muy debil", MessageAlerts.MessageType.WARNING);
                             } else {
                                 // 4
                                 if (!pass.equals(confirmPass)) {
-                                    JOptionPane.showMessageDialog(null, "Las contraseñas no coinciden");
+                                    MessageAlerts.getInstance().showMessage(" ERROR! ", "Las contraseñas no coinciden", MessageAlerts.MessageType.ERROR);
                                 } else {
                                     try {
                                         Statement st2 = db.getConnection().createStatement();
                                         String sql2 = "INSERT INTO Usuario (nombre, correo_electronico, contrasena) VALUES ('" + user + "','" + email + "','" + pass + "')";
                                         st2.executeUpdate(sql2);
-                                        JOptionPane.showMessageDialog(null, "Usuario registrado correctamente");
+                                        Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER,"Usuario registrado correctamente");
                                         FormsManager.getInstance().showForm(new Home());
+
+
                                     } catch (Exception ex) {
                                         System.out.println(ex);
                                     }

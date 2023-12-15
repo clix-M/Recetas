@@ -10,6 +10,9 @@ import clix.manager.FormsManager;
 import clix.model.ModelReceta;
 import clix.util.db;
 import com.formdev.flatlaf.FlatClientProperties;
+import raven.alerts.MessageAlerts;
+import raven.popup.GlassPanePopup;
+import raven.toast.Notifications;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +32,8 @@ public class MainCrud extends javax.swing.JPanel {
      private String imagePath = "";
     ModelReceta recetaPas = new ModelReceta();
 
+    private boolean isSaved = false;
+
     /**
      * Creates new form MainCrud
      */
@@ -40,7 +45,6 @@ public class MainCrud extends javax.swing.JPanel {
                 "showClearButton:true"
         );
 
-        // dar colores
 
 
     }
@@ -357,16 +361,43 @@ public class MainCrud extends javax.swing.JPanel {
         String pasosReceta = textPasosReceta.getText();
         byte[] imageBytes = convertImageToBytes(imagePath);
 
+        double tiempoPrep = 0;
+        try {
+            String tiempoPrepString = Objects.requireNonNull(comboboxTiempoPrep.getSelectedItem()).toString();
+            tiempoPrep = Double.parseDouble(tiempoPrepString);
+            // ... your existing code ...
+        } catch (NumberFormatException e) {
+            // ... code to handle the exception ...
+        }
 
-        String tiempoPrepString = Objects.requireNonNull(comboboxTiempoPrep.getSelectedItem()).toString();
-        double tiempoPrep = Double.parseDouble(tiempoPrepString);
+        // validaremos uno por uno los campos
+        if (nombreReceta.isEmpty()) {
+            MessageAlerts.getInstance().showMessage(lblNombreReceta.getText(), "Debe ingresar el nombre de la receta", MessageAlerts.MessageType.WARNING);
+
+        }else if (imagePath.isEmpty()) {
+            MessageAlerts.getInstance().showMessage("Imagen", "Debe seleccionar una imagen", MessageAlerts.MessageType.WARNING);
 
 
+        }else if (descripcion.isEmpty()) {
+            MessageAlerts.getInstance().showMessage(lblDescripcion.getText(), "Debe ingresar una descripcion", MessageAlerts.MessageType.WARNING);
 
-        if (nombreReceta.isEmpty() || descripcion.isEmpty() || dificultad == 0 || categoria == 0 || pasosReceta.isEmpty() || tiempoPrep == 0 || imageBytes == null) {
-            JOptionPane.showMessageDialog(null, "Debe llenar todos los campos");
+        } else if (pasosReceta.isEmpty()) {
+            MessageAlerts.getInstance().showMessage(lnlPasosReceta.getText(), "Debe ingresar los pasos de la receta", MessageAlerts.MessageType.WARNING);
+
+        }else  if (categoria == 0) {
+            MessageAlerts.getInstance().showMessage(lblCategoria.getText(), "Debe seleccionar una categoria", MessageAlerts.MessageType.WARNING);
+
+        }else if (dificultad == 0) {
+            MessageAlerts.getInstance().showMessage(lblDificultad.getText(), "Debe seleccionar una dificultad", MessageAlerts.MessageType.WARNING);
+
+        }else if (comboboxTiempoPrep.getSelectedIndex() == 0) {
+            MessageAlerts.getInstance().showMessage("Tiempo de Preparacion", "Debe seleccionar un tiempo de preparacion", MessageAlerts.MessageType.WARNING);
         } else {
-            try {
+
+
+
+
+        try {
                 String sql = "INSERT INTO Receta (nombre, descripcion, tiempo_de_preparacion, instruccion_de_preparacion, dificultad, id_categoria, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
                 pstmt.setString(1, nombreReceta);
@@ -377,7 +408,7 @@ public class MainCrud extends javax.swing.JPanel {
                 pstmt.setInt(6, categoria);
                 pstmt.setBytes(7, imageBytes);
                 pstmt.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Receta guardada correctamente");
+
 
                 // ahora sacar de la base de datos el id de la receta que se acaba de guardar y guardar en el objeto recetaPas
                 Statement stmt = db.getConnection().createStatement();
@@ -389,26 +420,26 @@ public class MainCrud extends javax.swing.JPanel {
                     System.out.println("No se encontro el id de la receta");
                 }
 
+                // mostrar toast de que se guardo correctamente
+              Notifications.getInstance().show(Notifications.Type.SUCCESS,Notifications.Location.TOP_RIGHT,  "Se guardo correctamente la receta");
+
+            // CREAR UN OBJETO PARA PASAR AL SIGUIENTE FORM
+            recetaPas.setNombre(nombreReceta);
+            recetaPas.setDescripcion(descripcion);
+            recetaPas.setTiempo_de_preparacion(tiempoPrep);
+            recetaPas.setInstruccion_de_preparacion(pasosReceta);
+            recetaPas.setDificultad(dificultad);
+            recetaPas.setId_categoria(categoria);
+            recetaPas.setImagen(new ImageIcon(imageBytes));
+
 
             } catch (Exception ex) {
                 System.out.println(ex);
             }
+
         }
 
-        // CREAR UN OBJETO PARA PASAR AL SIGUIENTE FORM
-        recetaPas.setNombre(nombreReceta);
-        recetaPas.setDescripcion(descripcion);
-        recetaPas.setTiempo_de_preparacion(tiempoPrep);
-        recetaPas.setInstruccion_de_preparacion(pasosReceta);
-        recetaPas.setDificultad(dificultad);
-        recetaPas.setId_categoria(categoria);
-        recetaPas.setImagen(new ImageIcon(imageBytes));
-
-        // PASAR AL SIGUIENTE FORM
-
-
-
-
+            isSaved = true;
 
     }
 
@@ -419,8 +450,17 @@ public class MainCrud extends javax.swing.JPanel {
 
     private void seguirActionPerformed(java.awt.event.ActionEvent evt) {
 
+        // poner un mensaje de que debe guardar la receta primero
 
-        FormsManager.getInstance().showForm(new MainCrud2(recetaPas));
+        if (textNombreReceta.getText().isEmpty() ){
+            isSaved = true;
+        }
+
+        if (isSaved) {
+            FormsManager.getInstance().showForm(new MainCrud2(recetaPas));
+        }else {
+            MessageAlerts.getInstance().showMessage("Debe guardar la receta primero", "no puede continuar sin guardar la receta", MessageAlerts.MessageType.ERROR);
+        }
     }
 
 
